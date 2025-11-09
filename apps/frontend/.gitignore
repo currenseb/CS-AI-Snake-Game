@@ -1,0 +1,70 @@
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+
+########################
+# Node / Frontend
+########################
+
+# dependencies
+node_modules/
+.pnp/
+.pnp.*
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/versions
+
+# build outputs
+.next/
+out/
+build/
+
+# testing
+coverage/
+
+# debug logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# TypeScript build info
+*.tsbuildinfo
+next-env.d.ts
+
+########################
+# Python / Backend
+########################
+
+# virtual environment
+venv/
+.env/
+.env.*
+
+# compiled Python files
+__pycache__/
+*.py[cod]
+
+# Python build outputs
+*.egg-info/
+dist/
+build/
+
+########################
+# IDE / Miscellaneous
+########################
+
+# IDE settings
+.idea/
+.vscode/
+
+# macOS files
+.DS_Store
+
+# SSH keys / secrets
+*.pem
+Downloads
+Downloads.pub
+
+# system junk
+Thumbs.db
