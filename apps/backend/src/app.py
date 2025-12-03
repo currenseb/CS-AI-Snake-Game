@@ -405,11 +405,10 @@ async def main() -> None:
     await runner.setup()
 
     # Create a site bound to a host and port
-    # Using port 8765 so your frontend can connect to ws://localhost:8765
     site = web.TCPSite(
         runner,
         host="0.0.0.0",
-        port=int(os.environ.get("PORT", 8765))
+        port=int(os.environ.get("PORT", 10000))
     )
     await site.start()
 

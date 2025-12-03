@@ -32,6 +32,7 @@ export default function Home() {
   const socket = io(process.env.NEXT_PUBLIC_BACKEND_URL!, {
     transports: ["websocket"],
     reconnection: true,
+    path: "/socket.io/",
   });
 
   socketRef.current = socket;
