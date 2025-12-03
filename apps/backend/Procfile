@@ -1,1 +1,2 @@
-web: python apps/backend/src/app.py
+web: python src/app.py
+
