@@ -1,4 +1,5 @@
 import asyncio
+import os
 import time
 import socketio
 from aiohttp import web
@@ -405,13 +406,12 @@ async def main() -> None:
 
     # Create a site bound to a host and port
     # Using port 8765 so your frontend can connect to ws://localhost:8765
-    site = web.TCPSite(runner, host="0.0.0.0", port=8765)
+    site = web.TCPSite(
+        runner,
+        host="0.0.0.0",
+        port=int(os.environ.get("PORT", 8765))
+    )
     await site.start()
-
-    print("======================================")
-    print(" Snake AI Backend running!")
-    print(" Listening on http://localhost:8765")
-    print("======================================")
 
     # Keep the server alive indefinitely
     try:
