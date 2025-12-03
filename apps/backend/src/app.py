@@ -347,13 +347,22 @@ async def update_agent_game_state(game: Game, agent: Any) -> None:
 
         state_new = agent.get_state(game)
 
-        agent.train_short_memory(state_old, action_idx, reward, state_new, done)
+        # ---- TRAINING THROTTLE (train every 4 frames) ----
+        if not hasattr(agent, "train_step_counter"):
+            agent.train_step_counter = 0
 
+        agent.train_step_counter += 1
+
+        # Only train every 4 steps (HUGE performance boost)
+        if agent.train_step_counter % 4 == 0:
+            agent.train_short_memory(state_old, action_idx, reward, state_new, done)
+
+        # Always store memory
         agent.remember(state_old, action_idx, reward, state_new, done)
 
         if done:
             # Stronger post-game training phase
-            for _ in range(10):  # run more long-memory updates per game
+            for _ in range(3):  # run more long-memory updates per game
                 agent.train_long_memory()
             agent.n_games += 1
 

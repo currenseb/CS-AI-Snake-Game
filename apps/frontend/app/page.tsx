@@ -21,7 +21,7 @@ export default function Home() {
   const [gameState, setGameState] = useState<GameState | null>(null);
   const [canvasSize, setCanvasSize] = useState({ width: 800, height: 600 });
   const [aiMode, setAiMode] = useState(true);
-  const [aiSpeed, setAiSpeed] = useState(0.05);
+  const [aiSpeed, setAiSpeed] = useState(0.02);
   const [showPopup, setShowPopup] = useState(false); // 👈 new state
   const keyboardSpeed = 0.1;
 
