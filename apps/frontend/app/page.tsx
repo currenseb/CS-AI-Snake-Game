@@ -27,37 +27,37 @@ export default function Home() {
 
   // --- Initialize socket once ---
   useEffect(() => {
-    if (socketRef.current) return;
+  if (socketRef.current) return;
 
-    const socket = io("http://localhost:8765", {
-      transports: ["websocket"],
-      path: "/socket.io/",
-      reconnection: true,
+  const socket = io(process.env.NEXT_PUBLIC_BACKEND_URL!, {
+    transports: ["websocket"],
+    reconnection: true,
+  });
+
+  socketRef.current = socket;
+
+  socket.on("connect", () => {
+    console.log("[frontend] connected to backend");
+    socket.emit("start_game", {
+      starting_tick: aiMode ? aiSpeed : keyboardSpeed,
+      ai_mode: aiMode,
     });
+  });
 
-    socketRef.current = socket;
+  socket.on("disconnect", () => {
+    console.warn("[frontend] disconnected from backend");
+  });
 
-    socket.on("connect", () => {
-      console.log("[frontend] connected to backend");
-      socket.emit("start_game", {
-        starting_tick: aiMode ? aiSpeed : keyboardSpeed,
-        ai_mode: aiMode,
-      });
-    });
+  socket.on("game_state", (data: GameState) => {
+    setGameState(data);
+  });
 
-    socket.on("disconnect", () => {
-      console.warn("[frontend] disconnected from backend");
-    });
+  return () => {
+    socket.disconnect();
+    socketRef.current = null;
+  };
+}, []);
 
-    socket.on("game_state", (data: GameState) => {
-      setGameState(data);
-    });
-
-    return () => {
-      socket.disconnect();
-      socketRef.current = null;
-    };
-  }, []);
 
   // --- Mode toggle ---
   useEffect(() => {
