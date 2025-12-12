@@ -1,8 +1,18 @@
+# Python
 venv/
 .venv/
-node_modules/
-.idea/
 __pycache__/
+
+# Node / Next.js
+node_modules/
 .next/
 out/
 build/
+
+# IDE
+.idea/
+
+# Sensitive
+Downloads/
+Downloads.pub
+allfiles.txt
