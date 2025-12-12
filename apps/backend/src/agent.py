@@ -6,7 +6,7 @@ from collections import deque
 from model import LinearQNet, QTrainer
 
 MAX_MEMORY = 100_000  # max replay buffer size
-BATCH_SIZE = 1000     # how many experiences to train on at once
+BATCH_SIZE = 256    # how many experiences to train on at once
 LR = 0.001            # learning rates
 
 class DQN:
