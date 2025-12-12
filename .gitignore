@@ -13,6 +13,6 @@ build/
 .idea/
 
 # Sensitive
-Downloads/
+Downloads
 Downloads.pub
 allfiles.txt
