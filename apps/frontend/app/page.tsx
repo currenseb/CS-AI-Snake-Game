@@ -3,8 +3,6 @@
 import { useEffect, useRef, useState } from "react";
 import { io, Socket } from "socket.io-client";
 
-const HEADER_HEIGHT_PX = 64;
-
 interface GameState {
   grid_width: number;
   grid_height: number;
@@ -19,10 +17,10 @@ export default function Home() {
   const socketRef = useRef<Socket | null>(null);
 
   const [gameState, setGameState] = useState<GameState | null>(null);
-  const [canvasSize, setCanvasSize] = useState({ width: 800, height: 600 });
+  const [canvasSize, setCanvasSize] = useState<{ width: number; height: number } | null>(null);
   const [aiMode, setAiMode] = useState(true);
   const [aiSpeed, setAiSpeed] = useState(0.02);
-  const [showPopup, setShowPopup] = useState(false); // 👈 new state
+  const [showPopup, setShowPopup] = useState(false);
   const keyboardSpeed = 0.1;
 
   // --- Initialize socket once ---
@@ -172,39 +170,30 @@ export default function Home() {
   };
 
   useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
+  const computeSize = () => {
+    const maxBoard = Math.min(
+      window.innerWidth * 0.9,
+      window.innerHeight * 0.7
+    );
 
-    if (gameState) drawGame(ctx, canvas, gameState);
-    else ctx.clearRect(0, 0, canvas.width, canvas.height);
-  }, [gameState]);
+    // 16:9 ratio
+    const width = Math.max(900, maxBoard);
+    const height = Math.max(506.25, maxBoard);
 
-  // --- Resize handling ---
-  useEffect(() => {
-    const computeSize = () => {
-      const width = window.innerWidth;
-      const height = window.innerHeight - HEADER_HEIGHT_PX;
-      setCanvasSize({
-        width: Math.max(400, width * 0.8),
-        height: Math.max(300, height * 0.8),
-      });
-    };
-    computeSize();
-    window.addEventListener("resize", computeSize);
-    return () => window.removeEventListener("resize", computeSize);
-  }, []);
+    setCanvasSize({ width: width, height: height });
+  };
+
+  computeSize();
+  window.addEventListener("resize", computeSize);
+  return () => window.removeEventListener("resize", computeSize);
+}, []);
+
 
   return (
-    <div className="absolute top-0 left-0 right-0 bottom-0 flex flex-col items-center justify-start pt-6 gap-4">
-      {/* Title */}
-      <h1 className="text-3xl font-extrabold text-center text-white">
-        CS + AI Snake Bootcamp
-      </h1>
+    <div className="w-full flex flex-col items-center justify-start pt-6 gap-4 px-4">
 
       {/* Controls row */}
-      <div className="flex items-center gap-4">
+      <div className="flex flex-wrap items-center justify-center gap-4 text-center">
         <button
           onClick={() => setAiMode((prev) => !prev)}
           className={`px-4 py-2 rounded-md font-semibold transition ${
@@ -261,6 +250,7 @@ export default function Home() {
       )}
 
       {/* Game canvas */}
+      {canvasSize && (
       <canvas
         ref={canvasRef}
         width={canvasSize.width}
@@ -275,6 +265,8 @@ export default function Home() {
           transition: "filter 0.2s ease",
         }}
       />
+    )}
+
 
       {/* 👇 Popup overlay */}
       {showPopup && (
