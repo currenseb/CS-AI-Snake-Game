@@ -25,38 +25,37 @@ export default function Home() {
 
   // --- Initialize socket once ---
   useEffect(() => {
-  if (socketRef.current) return;
+    if (socketRef.current) return;
 
-  const socket = io(process.env.NEXT_PUBLIC_BACKEND_URL!, {
-    transports: ["websocket"],
-    reconnection: true,
-    path: "/socket.io/",
-  });
-
-  socketRef.current = socket;
-
-  socket.on("connect", () => {
-    console.log("[frontend] connected to backend");
-    socket.emit("start_game", {
-      starting_tick: aiMode ? aiSpeed : keyboardSpeed,
-      ai_mode: aiMode,
+    const socket = io(process.env.NEXT_PUBLIC_BACKEND_URL!, {
+      transports: ["websocket"],
+      reconnection: true,
+      path: "/socket.io/",
     });
-  });
 
-  socket.on("disconnect", () => {
-    console.warn("[frontend] disconnected from backend");
-  });
+    socketRef.current = socket;
 
-  socket.on("game_state", (data: GameState) => {
-    setGameState(data);
-  });
+    socket.on("connect", () => {
+      console.log("[frontend] connected to backend");
+      socket.emit("start_game", {
+        starting_tick: aiMode ? aiSpeed : keyboardSpeed,
+        ai_mode: aiMode,
+      });
+    });
 
-  return () => {
-    socket.disconnect();
-    socketRef.current = null;
-  };
-}, []);
+    socket.on("disconnect", () => {
+      console.warn("[frontend] disconnected from backend");
+    });
 
+    socket.on("game_state", (data: GameState) => {
+      setGameState(data);
+    });
+
+    return () => {
+      socket.disconnect();
+      socketRef.current = null;
+    };
+  }, []);
 
   // --- Mode toggle ---
   useEffect(() => {
@@ -169,25 +168,41 @@ export default function Home() {
     }
   };
 
+  // ✅ THE ONE ADDED EFFECT (this was missing)
   useEffect(() => {
-  const computeSize = () => {
-    const maxBoard = Math.min(
-      window.innerWidth * 0.9,
-      window.innerHeight * 0.7
-    );
+    if (!canvasSize) return;
 
-    // 16:9 ratio
-    const width = Math.max(900, maxBoard);
-    const height = Math.max(506.25, maxBoard);
+    const canvas = canvasRef.current;
+    if (!canvas) return;
 
-    setCanvasSize({ width: width, height: height });
-  };
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
 
-  computeSize();
-  window.addEventListener("resize", computeSize);
-  return () => window.removeEventListener("resize", computeSize);
-}, []);
+    if (gameState) {
+      drawGame(ctx, canvas, gameState);
+    } else {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+    }
+  }, [gameState, canvasSize]);
 
+  // --- Resize handling ---
+  useEffect(() => {
+    const computeSize = () => {
+      const maxBoard = Math.min(
+        window.innerWidth * 0.9,
+        window.innerHeight * 0.7
+      );
+
+      const width = Math.max(900, maxBoard);
+      const height = Math.max(506.25, maxBoard);
+
+      setCanvasSize({ width: width, height: height });
+    };
+
+    computeSize();
+    window.addEventListener("resize", computeSize);
+    return () => window.removeEventListener("resize", computeSize);
+  }, []);
 
   return (
     <div className="w-full flex flex-col items-center justify-start pt-6 gap-4 px-4">
@@ -205,7 +220,6 @@ export default function Home() {
           {aiMode ? "Play Yourself!" : "Watch The AI Snake Learn!"}
         </button>
 
-        {/* 👇 new button only visible in AI mode */}
         {aiMode && (
           <button
             onClick={() => setShowPopup(true)}
@@ -224,7 +238,6 @@ export default function Home() {
         </span>
       </div>
 
-      {/* Speed slider (AI only) */}
       {aiMode && (
         <div className="flex flex-col items-center mt-2">
           <label htmlFor="speed-slider" className="text-sm text-gray-300 mb-1">
@@ -249,26 +262,23 @@ export default function Home() {
         </div>
       )}
 
-      {/* Game canvas */}
       {canvasSize && (
-      <canvas
-        ref={canvasRef}
-        width={canvasSize.width}
-        height={canvasSize.height}
-        className="shadow-lg"
-        style={{
-          border: "none",
-          outline: "none",
-          display: "block",
-          backgroundColor: "black",
-          filter: showPopup ? "blur(5px)" : "none",
-          transition: "filter 0.2s ease",
-        }}
-      />
-    )}
+        <canvas
+          ref={canvasRef}
+          width={canvasSize.width}
+          height={canvasSize.height}
+          className="shadow-lg"
+          style={{
+            border: "none",
+            outline: "none",
+            display: "block",
+            backgroundColor: "black",
+            filter: showPopup ? "blur(5px)" : "none",
+            transition: "filter 0.2s ease",
+          }}
+        />
+      )}
 
-
-      {/* 👇 Popup overlay */}
       {showPopup && (
         <div className="absolute inset-0 flex items-center justify-center bg-black/10 bg-opacity-50 backdrop-blur-md z-50">
           <div className="bg-gray-900/80 text-white rounded-lg p-6 max-w-md shadow-lg relative text-center">
@@ -301,3 +311,4 @@ export default function Home() {
     </div>
   );
 }
+
